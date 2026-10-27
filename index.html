@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Washington State Lottery - Quick Pick & Number Generator</title>
+  <style>
+    :root {
+      --wa-green: #00703c;
+      --wa-dark-green: #004d2a;
+      --wa-light-green: #10b981;
+      --wa-gold: #f59e0b;
+      --wa-navy: #0f172a;
+      --bg: #091e14;
+      --card-bg: rgba(18, 38, 28, 0.85);
+      --border-color: rgba(74, 222, 128, 0.2);
+      --text: #f0fdf4;
+      --text-muted: #86efac;
+      --ball-white: linear-gradient(145deg, #ffffff, #d1d5db);
+      --ball-green: linear-gradient(145deg, #10b981, #047857);
+      --ball-blue: linear-gradient(145deg, #38bdf8, #0369a1);
+      --ball-purple: linear-gradient(145deg, #c084fc, #6b21a8);
+      --ball-gold: linear-gradient(145deg, #fde047, #b45309);
+      --ball-red: linear-gradient(145deg, #f87171, #b91c1c);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at top, #0f3d26 0%, #06170e 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .badge-wa {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--border-color);
+      color: #86efac;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(to right, #ffffff, #86efac, #34d399);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      color: #9ca3af;
+      font-size: 14px;
+    }
+
+    .main-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 860px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Game Selector Tabs */
+    .game-tabs {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #d1d5db;
+      padding: 10px 8px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-align: center;
+    }
+
+    .tab-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #059669, #047857);
+      border-color: #34d399;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .tab-tag {
+      font-size: 11px;
+      opacity: 0.85;
+      font-weight: normal;
+    }
+
+    /* Game Info Bar */
+    .game-header-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 16px;
+    }
+
+    .game-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .game-details {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    .cost-pill {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* Generator Controls */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .control-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .control-input, .control-select {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      color: #fff;
+      padding: 8px 12px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .control-input:focus, .control-select:focus {
+      border-color: #34d399;
+    }
+
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      font-size: 13px;
+      color: #d1d5db;
+      cursor: pointer;
+    }
+
+    .toggle-group input[type="checkbox"] {
+      accent-color: #10b981;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    /* Action Buttons */
+    .actions-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .btn-generate {
+      flex: 2;
+      min-width: 200px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .btn-generate:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+      background: linear-gradient(135deg, #34d399, #059669);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Ticket Results Section */
+    .results-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ticket-play {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      animation: fadeIn 0.35s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .play-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #86efac;
+      min-width: 60px;
+    }
+
+    .balls-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* 3D Ball Styling */
+    .lotto-ball {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: #111827;
+      background: var(--ball-white);
+      box-shadow: inset -3px -3px 6px rgba(0, 0, 0, 0.4), inset 3px 3px 6px rgba(255, 255, 255, 0.8), 0 4px 8px rgba(0, 0, 0, 0.3);
+      position: relative;
+      user-select: none;
+      transition: transform 0.2s ease;
+    }
+
+    .lotto-ball:hover {
+      transform: scale(1.1);
+    }
+
+    .lotto-ball.special-ball-pb {
+      background: var(--ball-red);
+      color: #ffffff;
+      box-shadow: inset -3px -3px 6px rgba(0, 0, 0, 0.5), inset 3px 3px 6px rgba(255, 255, 255, 0.5), 0 4px 10px rgba(220, 38, 38, 0.5);
+    }
+
+    .lotto-ball.special-ball-mb {
+      background: var(--ball-gold);
+      color: #111827;
+      box-shadow: inset -3px -3px 6px rgba(0, 0, 0, 0.4), inset 3px 3px 6px rgba(255, 255, 255, 0.8), 0 4px 10px rgba(234, 179, 8, 0.5);
+    }
+
+    .special-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-left: 2px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .special-label.pb {
+      background: rgba(220, 38, 38, 0.2);
+      color: #f87171;
+    }
+
+    .special-label.mb {
+      background: rgba(234, 179, 8, 0.2);
+      color: #facc15;
+    }
+
+    .play-stats {
+      font-size: 12px;
+      color: #94a3b8;
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Right Sidebar / Draw Details */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .sidebar-section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #86efac;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .countdown-box {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .countdown-time {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #34d399;
+      font-variant-numeric: tabular-nums;
+      margin: 4px 0;
+    }
+
+    .countdown-label {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .info-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 6px;
+    }
+
+    .info-key {
+      color: #9ca3af;
+    }
+
+    .info-val {
+      font-weight: 600;
+      color: #f3f4f6;
+      text-align: right;
+    }
+
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #065f46;
+      border: 1px solid #34d399;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    footer {
+      margin-top: auto;
+      text-align: center;
+      padding-top: 32px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    footer a {
+      color: #10b981;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="badge-wa">🌲 OFFICIAL DRAW GAME FORMATS</div>
+    <h1>Washington State Lotto Generator</h1>
+    <p class="subtitle">Cryptographically secure quick pick lottery generator for Washington's Lottery games</p>
+  </header>
+
+  <main class="main-container">
+    <!-- Left Main Controls & Results -->
+    <section class="card">
+      <!-- Game Navigation Tabs -->
+      <nav class="game-tabs" id="gameTabs"></nav>
+
+      <!-- Current Game Info Banner -->
+      <div class="game-header-info">
+        <div>
+          <div class="game-title" id="gameTitle">Washington's Lotto</div>
+          <div class="game-details" id="gameDesc">6 numbers from 1 to 49 • 2 plays per $1</div>
+        </div>
+        <div class="cost-pill" id="gameCost">$1.00 for 2 plays</div>
+      </div>
+
+      <!-- Generator Options & Inputs -->
+      <div class="controls-grid">
+        <div class="control-group">
+          <label class="control-label" for="playsCount">Number of Plays</label>
+          <select id="playsCount" class="control-select">
+            <option value="1">1 Play</option>
+            <option value="2" selected>2 Plays (Standard $1)</option>
+            <option value="3">3 Plays</option>
+            <option value="5">5 Plays ($2.50)</option>
+            <option value="10">10 Plays ($5.00)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="luckyNumbers">Lucky Numbers (Include)</label>
+          <input type="text" id="luckyNumbers" class="control-input" placeholder="e.g. 7, 21">
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="excludeNumbers">Exclude Numbers</label>
+          <input type="text" id="excludeNumbers" class="control-input" placeholder="e.g. 13, 44">
+        </div>
+
+        <div class="control-group" style="justify-content: flex-end;">
+          <label class="toggle-group">
+            <input type="checkbox" id="balanceOddEven" checked>
+            <span>Balanced Odd/Even Split</span>
+          </label>
+          <label class="toggle-group">
+            <input type="checkbox" id="soundToggle" checked>
+            <span>Sound Effects (Chimes)</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="actions-bar">
+        <button id="btnGenerate" class="btn-generate">
+          <span>🎲</span> GENERATE QUICK PICK
+        </button>
+        <button id="btnCopy" class="btn-secondary">
+          📋 Copy Plays
+        </button>
+        <button id="btnPrint" class="btn-secondary">
+          🖨️ Print Slip
+        </button>
+      </div>
+
+      <!-- Output Ticket Plays -->
+      <div id="resultsList" class="results-container"></div>
+    </section>
+
+    <!-- Right Sidebar with Next Draw Countdown & Official Odds -->
+    <aside class="sidebar">
+      <div class="card countdown-box">
+        <div class="countdown-label">NEXT DRAWING COUNTDOWN</div>
+        <div class="countdown-time" id="countdownClock">--:--:--</div>
+        <div class="countdown-label" id="drawScheduleLabel">Drawing Tonight at 8:00 PM PT</div>
+      </div>
+
+      <div class="card">
+        <div class="sidebar-section-title">📊 Game Information & Odds</div>
+        <ul class="info-list" id="oddsList"></ul>
+      </div>
+
+      <div class="card">
+        <div class="sidebar-section-title">🛡️ Responsible Gaming</div>
+        <p style="font-size: 12px; color: #94a3b8; line-height: 1.5;">
+          You must be 18 or older to purchase lottery tickets in Washington State. Ticket sales cutoff is strictly <strong>7:45 PM PT</strong> nightly.
+        </p>
+        <p style="font-size: 12px; color: #86efac; margin-top: 8px;">
+          Problem gambling helpline: <strong>1-800-547-6133</strong>.
+        </p>
+      </div>
+    </aside>
+  </main>
+
+  <div id="toast">Copied to clipboard!</div>
+
+  <footer>
+    <p>Washington State Lottery Number Generator • Independent Utility for WA Players</p>
+    <p>Prizes must be claimed within 180 days of drawing date.</p>
+  </footer>
+
+  <script>
+    // Audio synthesis using Web Audio API
+    let audioCtx = null;
+    function playChime(freq = 587.33, duration = 0.2) {
+      if (!document.getElementById('soundToggle').checked) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {
+        // Audio might be blocked before first user gesture
+      }
+    }
+
+    // Official Washington State Lottery Games Catalog
+    const WA_GAMES = {
+      lotto: {
+        id: 'lotto',
+        name: "Washington's Lotto",
+        desc: "State jackpot game drawn Mon, Wed & Sat nights",
+        cost: "$1.00 for 2 plays",
+        defaultPlays: 2,
+        rules: { count: 6, min: 1, max: 49, unique: true, sorted: true },
+        drawDays: [1, 3, 6], // Mon, Wed, Sat
+        drawTime: "8:00 PM PT",
+        jackpot: "Starts at $1,000,000",
+        odds: [
+          { tier: "Jackpot (6 of 6)", odds: "1 in 6,991,908" },
+          { tier: "5 of 6", odds: "1 in 27,100 ($1,000)" },
+          { tier: "4 of 6", odds: "1 in 516 ($30)" },
+          { tier: "3 of 6", odds: "1 in 28.3 ($3)" },
+          { tier: "Overall Odds", odds: "1 in 27.1" }
+        ]
+      },
+      hit5: {
+        id: 'hit5',
+        name: "Hit 5",
+        desc: "Daily rolling cashpot game drawn nightly",
+        cost: "$1.00 per play",
+        defaultPlays: 1,
+        rules: { count: 5, min: 1, max: 42, unique: true, sorted: true },
+        drawDays: [0, 1, 2, 3, 4, 5, 6], // Daily
+        drawTime: "8:00 PM PT",
+        jackpot: "Starts at $100,000",
+        odds: [
+          { tier: "Cashpot (5 of 5)", odds: "1 in 850,668" },
+          { tier: "4 of 5", odds: "1 in 4,598 ($150)" },
+          { tier: "3 of 5", odds: "1 in 128 ($15)" },
+          { tier: "2 of 5", odds: "1 in 11 (Free Ticket)" },
+          { tier: "Overall Odds", odds: "1 in 10.1" }
+        ]
+      },
+      match4: {
+        id: 'match4',
+        name: "Match 4",
+        desc: "Daily game with fixed $10,000 top prize",
+        cost: "$2.00 per play",
+        defaultPlays: 1,
+        rules: { count: 4, min: 1, max: 24, unique: true, sorted: true },
+        drawDays: [0, 1, 2, 3, 4, 5, 6],
+        drawTime: "8:00 PM PT",
+        jackpot: "$10,000 Fixed Top Prize",
+        odds: [
+          { tier: "Top Prize (4 of 4)", odds: "1 in 10,626 ($10,000)" },
+          { tier: "3 of 4", odds: "1 in 133 ($20)" },
+          { tier: "2 of 4", odds: "1 in 9.32 ($2)" },
+          { tier: "Overall Odds", odds: "1 in 8.70" }
+        ]
+      },
+      pick3: {
+        id: 'pick3',
+        name: "Pick 3",
+        desc: "3 digits from 0-9 drawn every night",
+        cost: "$0.50 or $1.00 per play",
+        defaultPlays: 1,
+        rules: { count: 3, min: 0, max: 9, unique: false, sorted: false },
+        drawDays: [0, 1, 2, 3, 4, 5, 6],
+        drawTime: "8:00 PM PT",
+        jackpot: "$500 for $1 Straight",
+        odds: [
+          { tier: "Straight (Exact Order)", odds: "1 in 1,000 ($500)" },
+          { tier: "6-Way Box", odds: "1 in 167 ($80)" },
+          { tier: "3-Way Box", odds: "1 in 333 ($160)" },
+          { tier: "Front / Back Pair", odds: "1 in 100 ($50)" }
+        ]
+      },
+      dailykeno: {
+        id: 'dailykeno',
+        name: "Daily Keno",
+        desc: "10-spot quick pick from 80 balls drawn nightly",
+        cost: "$1.00 per play",
+        defaultPlays: 1,
+        rules: { count: 10, min: 1, max: 80, unique: true, sorted: true },
+        drawDays: [0, 1, 2, 3, 4, 5, 6],
+        drawTime: "8:00 PM PT",
+        jackpot: "Up to $100,000 Top Prize",
+        odds: [
+          { tier: "10 of 10", odds: "1 in 8,911,711 ($100,000)" },
+          { tier: "9 of 10", odds: "1 in 163,381 ($4,000)" },
+          { tier: "8 of 10", odds: "1 in 7,384 ($400)" },
+          { tier: "Overall Odds (10-Spot)", odds: "1 in 9.05" }
+        ]
+      },
+      powerball: {
+        id: 'powerball',
+        name: "Powerball (WA)",
+        desc: "National jackpot: 5 white balls + 1 Powerball",
+        cost: "$2.00 per play (+$1 Power Play)",
+        defaultPlays: 1,
+        rules: { count: 5, min: 1, max: 69, unique: true, sorted: true, special: { name: 'PB', min: 1, max: 26, type: 'pb' } },
+        drawDays: [1, 3, 6], // Mon, Wed, Sat
+        drawTime: "7:59 PM PT",
+        jackpot: "Multi-Million Jackpot",
+        odds: [
+          { tier: "Grand Prize (5 + PB)", odds: "1 in 292,201,338" },
+          { tier: "5 White Balls", odds: "1 in 11,688,053 ($1,000,000)" },
+          { tier: "4 + PB", odds: "1 in 913,129 ($50,000)" },
+          { tier: "Overall Odds", odds: "1 in 24.87" }
+        ]
+      },
+      megamillions: {
+        id: 'megamillions',
+        name: "Mega Millions (WA)",
+        desc: "National jackpot: 5 white balls + 1 Mega Ball",
+        cost: "$2.00 per play (+$1 Megaplier)",
+        defaultPlays: 1,
+        rules: { count: 5, min: 1, max: 70, unique: true, sorted: true, special: { name: 'MB', min: 1, max: 25, type: 'mb' } },
+        drawDays: [2, 5], // Tue, Fri
+        drawTime: "8:00 PM PT",
+        jackpot: "Multi-Million Jackpot",
+        odds: [
+          { tier: "Jackpot (5 + MB)", odds: "1 in 302,575,350" },
+          { tier: "5 White Balls", odds: "1 in 12,607,306 ($1,000,000)" },
+          { tier: "4 + MB", odds: "1 in 931,001 ($10,000)" },
+          { tier: "Overall Odds", odds: "1 in 24.0" }
+        ]
+      }
+    };
+
+    let currentGameKey = 'lotto';
+    let currentTicket = null;
+
+    // Cryptographic Random Number Generation
+    function getCryptoInt(min, max) {
+      const range = max - min + 1;
+      const buffer = new Uint32Array(1);
+      const maxUint = 0xffffffff;
+      const limit = maxUint - (maxUint % range);
+      let val;
+      do {
+        window.crypto.getRandomValues(buffer);
+        val = buffer[0];
+      } while (val >= limit);
+      return min + (val % range);
+    }
+
+    function generateGameLine(gameKey, options = {}) {
+      const game = WA_GAMES[gameKey];
+      const { count, min, max, unique, sorted, special } = game.rules;
+      const include = (options.include || []).filter(n => n >= min && n <= max);
+      const exclude = new Set(options.exclude || []);
+
+      for (let attempt = 0; attempt < 500; attempt++) {
+        const numbers = [];
+        const used = new Set();
+
+        for (const inc of include) {
+          if (!exclude.has(inc) && numbers.length < count) {
+            numbers.push(inc);
+            used.add(inc);
+          }
+        }
+
+        if (unique) {
+          const pool = [];
+          for (let i = min; i <= max; i++) {
+            if (!exclude.has(i) && !used.has(i)) pool.push(i);
+          }
+          if (pool.length < count - numbers.length) {
+            throw new Error("Too many excluded numbers to fulfill pick count.");
+          }
+          while (numbers.length < count) {
+            const idx = getCryptoInt(0, pool.length - 1);
+            numbers.push(pool.splice(idx, 1)[0]);
+          }
+        } else {
+          while (numbers.length < count) {
+            const num = getCryptoInt(min, max);
+            if (!exclude.has(num)) numbers.push(num);
+          }
+        }
+
+        if (options.balanceOddEven && count >= 4) {
+          const odds = numbers.filter(n => n % 2 !== 0).length;
+          const minOdd = Math.floor(count / 2) - 1;
+          const maxOdd = Math.ceil(count / 2) + 1;
+          if (odds < minOdd || odds > maxOdd) continue;
+        }
+
+        const finalNumbers = sorted ? numbers.slice().sort((a, b) => a - b) : numbers;
+        let specialBall = null;
+        if (special) {
+          specialBall = getCryptoInt(special.min, special.max);
+        }
+
+        return {
+          numbers: finalNumbers,
+          specialBall,
+          specialType: special ? special.type : null,
+          specialName: special ? special.name : null,
+          sum: finalNumbers.reduce((a, b) => a + b, 0),
+          oddCount: finalNumbers.filter(n => n % 2 !== 0).length,
+          evenCount: finalNumbers.filter(n => n % 2 === 0).length
+        };
+      }
+      throw new Error("Unable to fulfill constraints. Please broaden lucky/exclude criteria.");
+    }
+
+    function generatePlays() {
+      const game = WA_GAMES[currentGameKey];
+      const playsCount = parseInt(document.getElementById('playsCount').value, 10) || 1;
+      const luckyRaw = document.getElementById('luckyNumbers').value;
+      const excludeRaw = document.getElementById('excludeNumbers').value;
+      const balanceOddEven = document.getElementById('balanceOddEven').checked;
+
+      const include = luckyRaw.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+      const exclude = excludeRaw.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+
+      try {
+        const lines = [];
+        for (let i = 0; i < playsCount; i++) {
+          lines.push(generateGameLine(currentGameKey, { include, exclude, balanceOddEven }));
+        }
+
+        currentTicket = {
+          gameKey: currentGameKey,
+          gameName: game.name,
+          lines,
+          timestamp: new Date()
+        };
+
+        renderResults(lines);
+
+        // Sound effect sequence
+        playChime(523.25, 0.15); // C5
+        setTimeout(() => playChime(659.25, 0.15), 100); // E5
+        setTimeout(() => playChime(783.99, 0.25), 200); // G5
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    function renderResults(lines) {
+      const container = document.getElementById('resultsList');
+      container.innerHTML = '';
+
+      lines.forEach((line, idx) => {
+        const playLetter = String.fromCharCode(65 + idx);
+        const playDiv = document.createElement('div');
+        playDiv.className = 'ticket-play';
+
+        const ballsHtml = line.numbers.map(n => `<div class="lotto-ball">${n}</div>`).join('');
+        let specialHtml = '';
+        if (line.specialBall !== null) {
+          const ballClass = line.specialType === 'pb' ? 'special-ball-pb' : 'special-ball-mb';
+          const labelClass = line.specialType === 'pb' ? 'pb' : 'mb';
+          specialHtml = `
+            <div style="display: flex; align-items: center; gap: 4px; margin-left: 6px;">
+              <div class="lotto-ball ${ballClass}">${line.specialBall}</div>
+              <span class="special-label ${labelClass}">${line.specialName}</span>
+            </div>
+          `;
+        }
+
+        playDiv.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <div class="play-label">PLAY ${playLetter}</div>
+            <div class="balls-row">${ballsHtml}${specialHtml}</div>
+          </div>
+          <div class="play-stats">
+            <span>Sum: <strong>${line.sum}</strong></span>
+            <span>•</span>
+            <span>O/E: <strong>${line.oddCount}/${line.evenCount}</strong></span>
+          </div>
+        `;
+
+        container.appendChild(playDiv);
+      });
+    }
+
+    // Initialize Game Tabs
+    function setupTabs() {
+      const tabsContainer = document.getElementById('gameTabs');
+      tabsContainer.innerHTML = '';
+
+      for (const [key, g] of Object.entries(WA_GAMES)) {
+        const btn = document.createElement('button');
+        btn.className = `tab-btn ${key === currentGameKey ? 'active' : ''}`;
+        btn.innerHTML = `
+          <span>${g.name.replace(' (WA)', '')}</span>
+          <span class="tab-tag">${g.rules.count} of ${g.rules.max}</span>
+        `;
+        btn.onclick = () => selectGame(key);
+        tabsContainer.appendChild(btn);
+      }
+    }
+
+    function selectGame(key) {
+      currentGameKey = key;
+      const game = WA_GAMES[key];
+
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.innerText.includes(game.name.replace(' (WA)', '')));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      document.getElementById('gameTitle').innerText = game.name;
+      document.getElementById('gameDesc').innerText = game.desc;
+      document.getElementById('gameCost').innerText = game.cost;
+
+      // Adjust default plays
+      document.getElementById('playsCount').value = game.defaultPlays;
+
+      // Render Odds & Schedule
+      renderGameInfo(game);
+
+      // Generate initial play
+      generatePlays();
+    }
+
+    function renderGameInfo(game) {
+      const oddsList = document.getElementById('oddsList');
+      oddsList.innerHTML = `
+        <li class="info-item"><span class="info-key">Top Prize / Jackpot</span><span class="info-val" style="color:#fbbf24">${game.jackpot}</span></li>
+        <li class="info-item"><span class="info-key">Drawing Days</span><span class="info-val">${game.drawDays.length === 7 ? 'Daily' : 'Mon, Wed, Sat'}</span></li>
+        <li class="info-item"><span class="info-key">Draw Time</span><span class="info-val">${game.drawTime}</span></li>
+        <li class="info-item"><span class="info-key">Sales Cutoff</span><span class="info-val" style="color:#f87171">7:45 PM PT</span></li>
+      `;
+
+      game.odds.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'info-item';
+        li.innerHTML = `<span class="info-key">${item.tier}</span><span class="info-val">${item.odds}</span>`;
+        oddsList.appendChild(li);
+      });
+    }
+
+    // Countdown Timer to 8:00 PM Pacific Time
+    function updateCountdown() {
+      const now = new Date();
+      // Format to Pacific Time
+      const ptString = now.toLocaleString("en-US", { timeZone: "America/Los_Angeles" });
+      const ptDate = new Date(ptString);
+
+      const target = new Date(ptDate);
+      target.setHours(20, 0, 0, 0); // 8:00 PM PT
+
+      if (ptDate.getTime() >= target.getTime()) {
+        target.setDate(target.getDate() + 1);
+      }
+
+      const diff = target.getTime() - ptDate.getTime();
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+      document.getElementById('countdownClock').innerText = 
+        `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    // Copy Ticket Plays to Clipboard
+    function copyTicket() {
+      if (!currentTicket || !currentTicket.lines.length) return;
+      const game = WA_GAMES[currentTicket.gameKey];
+      const textLines = [
+        `🌲 Washington's Lottery - ${game.name}`,
+        `Drawings: ${game.drawTime} | Cost: ${game.cost}`,
+        '--------------------------------------------------'
+      ];
+
+      currentTicket.lines.forEach((line, idx) => {
+        const letter = String.fromCharCode(65 + idx);
+        const nums = line.numbers.map(n => String(n).padStart(2, '0')).join(' ');
+        let extra = line.specialBall !== null ? ` + [${line.specialName}: ${line.specialBall}]` : '';
+        textLines.push(`Play ${letter}: ${nums}${extra}`);
+      });
+
+      textLines.push('--------------------------------------------------');
+      textLines.push(`Generated: ${currentTicket.timestamp.toLocaleString()} PT`);
+
+      navigator.clipboard.writeText(textLines.join('\n')).then(() => {
+        showToast("Ticket copied to clipboard!");
+      }).catch(() => {
+        showToast("Copied to clipboard!");
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // Events
+    document.getElementById('btnGenerate').onclick = generatePlays;
+    document.getElementById('btnCopy').onclick = copyTicket;
+    document.getElementById('btnPrint').onclick = () => window.print();
+
+    // Initial setup
+    setupTabs();
+    selectGame('lotto');
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+  </script>
+</body>
+</html>

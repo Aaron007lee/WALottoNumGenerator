@@ -1,0 +1,26 @@
+{
+  "name": "wa-lotto-generator",
+  "version": "1.0.0",
+  "description": "Official Washington State Lottery Quick Pick & Number Generator with CLI and Web UI",
+  "main": "src/lottery.js",
+  "bin": {
+    "wa-lotto": "./cli.js"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node cli.js",
+    "cli": "node cli.js",
+    "test": "node --test tests/lottery.test.js"
+  },
+  "keywords": [
+    "lottery",
+    "washington-state",
+    "lotto",
+    "hit-5",
+    "match-4",
+    "powerball",
+    "mega-millions"
+  ],
+  "author": "Aaron Lee",
+  "license": "MIT"
+}
