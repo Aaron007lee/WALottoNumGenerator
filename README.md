@@ -1,4 +1,4 @@
-# 🌲 Washington State Lottery Quick Pick & Number Generator
+# 🌲 Washington State Lottery Quick Pick & Number Generator: Author: Aaron Lee
 
 A cryptographically secure, fully customizable number generator and quick pick tool for **Washington's Lottery** games, featuring both a rich interactive **Web UI** and a high-performance **CLI tool**.
 
@@ -97,10 +97,3 @@ npm test
 ```
 
 ---
-
-## 📜 Legal & Responsible Gaming
-
-* Players must be **18 years of age or older** to purchase lottery tickets in Washington State.
-* Daily ticket sales cut off at **7:45 PM PT** and resume at 7:46 PM PT.
-* Winning tickets must be claimed within **180 days** of the drawing date.
-* Problem Gambling Helpline: **1-800-547-6133**.
