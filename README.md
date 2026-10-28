@@ -4,6 +4,8 @@ A cryptographically secure, fully customizable number generator and quick pick t
 
 ---
 
+![alt text](image.png)
+
 ## 🎮 Supported Washington State Lottery Games
 
 | Game | Format | Ticket Cost | Draw Schedule (PT) | Cutoff Time | Top Prize / Jackpot |
